@@ -20,7 +20,7 @@ OS: Darwin arm64 25.2.0
     - install node first: brew install node
     - install npm :  pip install npm
     - create package.json : npm init-y 
-    - install k6 type package definitions : npm install --save-dev @types/k6
+    - install k6 type package definitions : npm install --save-dev @types/k6@latest
     - found some vscode extensions that provide better support.  installed them.
     - created a tsconfig.json in the project root to resolve the typescript type declarations for k6 modules
     - typescript is a superset of javascript that validates javascript with static type checking to help prevent errors at run time such as names that dont exist.  this is caught in the ide with typescript.

@@ -1,9 +1,15 @@
 {
   "compilerOptions": {
+    "target": "ES2015",
     "module": "esnext",
-    "target": "es2015",
+    "lib": ["ES2015"],
     "moduleResolution": "node",
-    "lib": ["es2015"],
-    "types": ["k6"]
-  }
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "noEmit": true,
+    "typeRoots": ["./node_modules/@types", "./types"]
+  },
+  "include": ["scripts/**/*", "types/**/*"]
 }
