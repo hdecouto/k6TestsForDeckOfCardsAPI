@@ -17,7 +17,7 @@ interface ApiResponse {
     remaining?: number;
 }
 
-function makeRequest(url: string) {
+function makeRequest(url: string): string | undefined {
   console.log(`Making request to: ${url}`);
   const res = http.get(url);
   latency.add(res.timings.duration);
@@ -38,14 +38,17 @@ function makeRequest(url: string) {
   
   if (res.status !== 200) {
     console.error(`Request failed with status ${res.status}. Stopping VU.`);
-    exec.test.abort();
+    return undefined;
   }
   
+  return payload?.deck_id;
 
 //   console.log(response);  uncomment to see typescript catch type errors
 }
 
 export default function () {
   const deck_id = makeRequest('https://deckofcardsapi.com/api/deck/new/shuffle/?deck_count=1');
-  makeRequest(`https://deckofcardsapi.com/api/deck/${deck_id}/draw/?count=2`);
+  if (deck_id) {
+    makeRequest(`https://deckofcardsapi.com/api/deck/${deck_id}/draw/?count=2`);
+  }
 }
