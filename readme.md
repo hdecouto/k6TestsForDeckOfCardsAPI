@@ -1,4 +1,4 @@
-Below is a quick summary of the technical prep and what to expect in the interview.
+Below is a quick summary of the technical prep and what to expect.
 API to Test
 Please start by reviewing the Deck of Cards API repo:
 https://github.com/crobertsbmw/deckofcards
