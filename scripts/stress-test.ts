@@ -49,39 +49,62 @@ interface DrawResponse {
 
 // Create or shuffle deck
 function createOrShuffleDeck(url: string): string | undefined {
+    console.log(`Making request to: ${url}`);
     const res = http.get(url);
     deckLatency.add(res.timings.duration);
 
+    let payload: DeckResponse | null = null;
+    try {
+        payload = res.json() as DeckResponse;
+    } catch (e) {
+        console.error('Failed to parse JSON response:', e);
+    }
+    
+    console.log(res.status);
+    console.log(res.body);
+    
     check(res, {
         'status is 200': (r) => r.status === 200,
-        'response time OK': (r) => r.timings.duration < 2000, // Track if response time degrades
+        'protocol is HTTP/2': (r) => r.proto === 'HTTP/2.0',
+        'response time OK': (r) => r.timings.duration < 2000,
     });
-
+    
     if (res.status !== 200) {
-        console.error(`[${new Date().toISOString()}] Failed: ${res.status} - ${url}`);
+        console.error(`Request failed with status ${res.status}. Stopping VU.`);
         return undefined;
     }
-
-    const payload = res.json() as DeckResponse;
+    
     return payload?.deck_id;
 }
 
 // Draw cards from deck
 function drawCards(url: string): DrawResponse | undefined {
+    console.log(`Making request to: ${url}`);
     const res = http.get(url);
     drawLatency.add(res.timings.duration);
 
+    let payload: DrawResponse | null = null;
+    try {
+        payload = res.json() as DrawResponse;
+    } catch (e) {
+        console.error('Failed to parse JSON response:', e);
+    }
+    
+    console.log(res.status);
+    console.log(res.body);
+    
     check(res, {
         'status is 200': (r) => r.status === 200,
+        'protocol is HTTP/2': (r) => r.proto === 'HTTP/2.0',
         'response time OK': (r) => r.timings.duration < 2000,
     });
-
+    
     if (res.status !== 200) {
-        console.error(`[${new Date().toISOString()}] Failed: ${res.status} - ${url}`);
+        console.error(`Request failed with status ${res.status}. Stopping VU.`);
         return undefined;
     }
-
-    return res.json() as DrawResponse;
+    
+    return payload || undefined;
 }
 
 export default function () {
