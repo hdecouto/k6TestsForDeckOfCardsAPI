@@ -3,6 +3,9 @@ import http from 'k6/http';
 import { check, sleep } from 'k6';
 import { Trend } from 'k6/metrics';
 
+// Enable/disable console logging
+const ENABLE_LOGGING = false;
+
 // Baseline Test Configuration
 // Purpose: Measure stable performance under expected traffic
 // Load: Constant 25 VUs for 10 minutes
@@ -49,7 +52,9 @@ function createOrShuffleDeck(url: string): string | undefined {
 
     let payload: DeckResponse | null = null;
     try {
-        payload = res.json() as DeckResponse;
+        payload = res.json() as unknown as DeckResponse;  
+        //The as unknown as pattern is the recommended TypeScript approach when you need to assert a type 
+        // that the compiler can't verify but you know is correct at runtime.
     } catch (e) {
         console.error('Failed to parse JSON response:', e);
     }
@@ -72,19 +77,19 @@ function createOrShuffleDeck(url: string): string | undefined {
 
 // Draw cards from deck
 function drawCards(url: string): DrawResponse | undefined {
-    console.log(`Making request to: ${url}`);
+    if (ENABLE_LOGGING) console.log(`Making request to: ${url}`);
     const res = http.get(url);
     drawLatency.add(res.timings.duration);
 
     let payload: DrawResponse | null = null;
     try {
-        payload = res.json() as DrawResponse;
+        payload = res.json() as unknown as DrawResponse;
     } catch (e) {
         console.error('Failed to parse JSON response:', e);
     }
     
-    console.log(res.status);
-    console.log(res.body);
+    if (ENABLE_LOGGING) console.log(res.status);
+    if (ENABLE_LOGGING) console.log(res.body);
     
     check(res, {
         'status is 200': (r) => r.status === 200,
@@ -110,7 +115,7 @@ export default function () {
         
         drawCards(`https://deckofcardsapi.com/api/deck/${deck_id}/draw/?count=${count}`);
         
-        sleep(Math.random() * 2 + 1); // Random think time between 1-3 seconds
+        sleep(.1);
         
         // Sometimes reshuffle
         if (Math.random() > 0.7) {
@@ -118,5 +123,5 @@ export default function () {
         }
     }
 
-    sleep(Math.random() * 2 + 1); // Think time between iterations
+    sleep(.1);
 }

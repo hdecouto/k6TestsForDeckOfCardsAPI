@@ -3,6 +3,9 @@ import http from 'k6/http';
 import { check, sleep } from 'k6';
 import { Trend } from 'k6/metrics';
 
+// Enable/disable console logging
+const ENABLE_LOGGING = false;
+
 // Smoke Test Configuration
 // Purpose: Validate scripts + basic latency/error
 // Load: Very low (1-2 VUs for 1-2 minutes)
@@ -42,19 +45,19 @@ interface DrawResponse {
 
 // Create or shuffle deck
 function createOrShuffleDeck(url: string): string | undefined {
-    console.log(`Making request to: ${url}`);
+    if (ENABLE_LOGGING) console.log(`Making request to: ${url}`);
     const res = http.get(url);
     deckLatency.add(res.timings.duration);
 
     let payload: DeckResponse | null = null;
     try {
-        payload = res.json() as DeckResponse;
+        payload = res.json() as unknown as DeckResponse;
     } catch (e) {
         console.error('Failed to parse JSON response:', e);
     }
     
-    console.log(res.status);
-    console.log(res.body);
+    if (ENABLE_LOGGING) console.log(res.status);
+    if (ENABLE_LOGGING) console.log(res.body);
     
     check(res, {
         'status is 200': (r) => r.status === 200,
@@ -71,19 +74,19 @@ function createOrShuffleDeck(url: string): string | undefined {
 
 // Draw cards from deck
 function drawCards(url: string): DrawResponse | undefined {
-    console.log(`Making request to: ${url}`);
+    if (ENABLE_LOGGING) console.log(`Making request to: ${url}`);
     const res = http.get(url);
     drawLatency.add(res.timings.duration);
 
     let payload: DrawResponse | null = null;
     try {
-        payload = res.json() as DrawResponse;
+        payload = res.json() as unknown as DrawResponse;
     } catch (e) {
         console.error('Failed to parse JSON response:', e);
     }
     
-    console.log(res.status);
-    console.log(res.body);
+    if (ENABLE_LOGGING) console.log(res.status);
+    if (ENABLE_LOGGING) console.log(res.body);
     
     check(res, {
         'status is 200': (r) => r.status === 200,
@@ -106,5 +109,5 @@ export default function () {
         drawCards(`https://deckofcardsapi.com/api/deck/${deck_id}/draw/?count=5`);
     }
 
-    sleep(1); // Think time between iterations
+    sleep(.1);
 }

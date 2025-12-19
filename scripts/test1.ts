@@ -4,6 +4,9 @@ import { check, sleep } from 'k6';
 import { Trend } from 'k6/metrics';
 import exec from 'k6/execution';
 
+// Enable/disable console logging
+const ENABLE_LOGGING = false;
+
 export const options = {
     vus: 1,
     duration: '10s',
@@ -59,19 +62,19 @@ interface PileResponse {
 
 // Generic request function for deck operations
 function createOrShuffleDeck(url: string): string | undefined {
-  console.log(`Making request to: ${url}`);
+  if (ENABLE_LOGGING) console.log(`Making request to: ${url}`);
   const res = http.get(url);
   deckLatency.add(res.timings.duration);
 
   let payload: DeckResponse | null = null;
   try {
-      payload = res.json() as DeckResponse;
+      payload = res.json() as unknown as DeckResponse;
   } catch (e) {
       console.error('Failed to parse JSON response:', e);
   }
   
-  console.log(res.status);
-  console.log(res.body);
+  if (ENABLE_LOGGING) console.log(res.status);
+  if (ENABLE_LOGGING) console.log(res.body);
   
   check(res, {
     'status is 200': (r) => r.status === 200,
@@ -88,19 +91,19 @@ function createOrShuffleDeck(url: string): string | undefined {
 
 // Draw cards from deck
 function drawCards(url: string): DrawResponse | undefined {
-  console.log(`Making request to: ${url}`);
+  if (ENABLE_LOGGING) console.log(`Making request to: ${url}`);
   const res = http.get(url);
   drawLatency.add(res.timings.duration);
 
   let payload: DrawResponse | null = null;
   try {
-      payload = res.json() as DrawResponse;
+      payload = res.json() as unknown as DrawResponse;
   } catch (e) {
       console.error('Failed to parse JSON response:', e);
   }
   
-  console.log(res.status);
-  console.log(res.body);
+  if (ENABLE_LOGGING) console.log(res.status);
+  if (ENABLE_LOGGING) console.log(res.body);
   
   check(res, {
     'status is 200': (r) => r.status === 200,
@@ -117,19 +120,19 @@ function drawCards(url: string): DrawResponse | undefined {
 
 // Pile operations
 function managePile(url: string): PileResponse | undefined {
-  console.log(`Making request to: ${url}`);
+  if (ENABLE_LOGGING) console.log(`Making request to: ${url}`);
   const res = http.get(url);
   pileLatency.add(res.timings.duration);
 
   let payload: PileResponse | null = null;
   try {
-      payload = res.json() as PileResponse;
+      payload = res.json() as unknown as PileResponse;
   } catch (e) {
       console.error('Failed to parse JSON response:', e);
   }
   
-  console.log(res.status);
-  console.log(res.body);
+  if (ENABLE_LOGGING) console.log(res.status);
+  if (ENABLE_LOGGING) console.log(res.body);
   
   check(res, {
     'status is 200': (r) => r.status === 200,
@@ -146,19 +149,19 @@ function managePile(url: string): PileResponse | undefined {
 
 // Generic function for operations that don't need specific return data
 function makeRequest(url: string): string | undefined {
-  console.log(`Making request to: ${url}`);
+  if (ENABLE_LOGGING) console.log(`Making request to: ${url}`);
   const res = http.get(url);
   genericLatency.add(res.timings.duration);
 
   let payload: DeckResponse | null = null;
   try {
-      payload = res.json() as DeckResponse;
+      payload = res.json() as unknown as DeckResponse;
   } catch (e) {
       console.error('Failed to parse JSON response:', e);
   }
   
-  console.log(res.status);
-  console.log(res.body);
+  if (ENABLE_LOGGING) console.log(res.status);
+  if (ENABLE_LOGGING) console.log(res.body);
   
   check(res, {
     'status is 200': (r) => r.status === 200,
