@@ -4,7 +4,10 @@ import { check, sleep } from 'k6';
 import { Trend } from 'k6/metrics';
 
 // Enable/disable console logging
-const ENABLE_LOGGING = false;
+const ENABLE_LOGGING = true;
+
+// Base URL for the Deck of Cards API
+const BASE_URL = 'http://127.0.0.1:8000';
 
 // Smoke Test Configuration
 // Purpose: Validate scripts + basic latency/error
@@ -61,7 +64,7 @@ function createOrShuffleDeck(url: string): string | undefined {
     
     check(res, {
         'status is 200': (r) => r.status === 200,
-        'protocol is HTTP/2': (r) => r.proto === 'HTTP/2.0',
+        'protocol is HTTP/1.1': (r) => r.proto === 'HTTP/1.1',
     });
     
     if (res.status !== 200) {
@@ -90,7 +93,7 @@ function drawCards(url: string): DrawResponse | undefined {
     
     check(res, {
         'status is 200': (r) => r.status === 200,
-        'protocol is HTTP/2': (r) => r.proto === 'HTTP/2.0',
+        'protocol is HTTP/1.1': (r) => r.proto === 'HTTP/1.1',
     });
     
     if (res.status !== 200) {
@@ -103,10 +106,10 @@ function drawCards(url: string): DrawResponse | undefined {
 
 export default function () {
     // Simple workflow: Create deck and draw cards
-    const deck_id = createOrShuffleDeck('https://deckofcardsapi.com/api/deck/new/shuffle/?deck_count=1');
+    const deck_id = createOrShuffleDeck(`${BASE_URL}/api/deck/new/shuffle/?deck_count=1`);
     
     if (deck_id) {
-        drawCards(`https://deckofcardsapi.com/api/deck/${deck_id}/draw/?count=5`);
+        drawCards(`${BASE_URL}/api/deck/${deck_id}/draw/?count=5`);
     }
 
     sleep(.1);

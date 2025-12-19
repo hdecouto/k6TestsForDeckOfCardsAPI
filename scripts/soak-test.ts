@@ -4,7 +4,10 @@ import { check, sleep } from 'k6';
 import { Trend } from 'k6/metrics';
 
 // Enable/disable console logging
-const ENABLE_LOGGING = false;
+const ENABLE_LOGGING = true;
+
+// Base URL for the Deck of Cards API
+const BASE_URL = 'http://127.0.0.1:8000';
 
 // Soak Test Configuration
 // Purpose: Detect degradation (GC, memory leaks, resource exhaustion)
@@ -62,7 +65,7 @@ function createOrShuffleDeck(url: string): string | undefined {
     
     const passed = check(res, {
         'status is 200': (r) => r.status === 200,
-        'protocol is HTTP/2': (r) => r.proto === 'HTTP/2.0',
+        'protocol is HTTP/1.1': (r) => r.proto === 'HTTP/1.1',
         'no performance degradation': (r) => r.timings.duration < 750,
     });
     
@@ -96,7 +99,7 @@ function drawCards(url: string): DrawResponse | undefined {
     
     const passed = check(res, {
         'status is 200': (r) => r.status === 200,
-        'protocol is HTTP/2': (r) => r.proto === 'HTTP/2.0',
+        'protocol is HTTP/1.1': (r) => r.proto === 'HTTP/1.1',
         'no performance degradation': (r) => r.timings.duration < 750,
     });
     
@@ -114,23 +117,23 @@ function drawCards(url: string): DrawResponse | undefined {
 
 export default function () {
     // Typical workflow repeated over time
-    const deck_id = createOrShuffleDeck('https://deckofcardsapi.com/api/deck/new/shuffle/?deck_count=6');
+    const deck_id = createOrShuffleDeck(`${BASE_URL}/api/deck/new/shuffle/?deck_count=6`);
     
     if (deck_id) {
         // Varied draw patterns to simulate real usage
         const drawCounts = [1, 2, 5, 10];
         const count = drawCounts[Math.floor(Math.random() * drawCounts.length)];
         
-        drawCards(`https://deckofcardsapi.com/api/deck/${deck_id}/draw/?count=${count}`);
+        drawCards(`${BASE_URL}/api/deck/${deck_id}/draw/?count=${count}`);
         
         sleep(.1);
         
         // Draw again
-        drawCards(`https://deckofcardsapi.com/api/deck/${deck_id}/draw/?count=${count}`);
+        drawCards(`${BASE_URL}/api/deck/${deck_id}/draw/?count=${count}`);
         
         // Occasionally reshuffle
         if (Math.random() > 0.6) {
-            createOrShuffleDeck(`https://deckofcardsapi.com/api/deck/${deck_id}/shuffle/?remaining=true`);
+            createOrShuffleDeck(`${BASE_URL}/api/deck/${deck_id}/shuffle/?remaining=true`);
             sleep(.1);
         }
     }

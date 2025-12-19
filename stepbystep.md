@@ -25,5 +25,19 @@ OS: Darwin arm64 25.2.0
     - created a tsconfig.json in the project root to resolve the typescript type declarations for k6 modules
     - typescript is a superset of javascript that validates javascript with static type checking to help prevent errors at run time such as names that dont exist.  this is caught in the ide with typescript.
     - the typescript compiler transpiles the .ts script into plain javascript .js before running in k6 which only handles javascript.
-7. 
+7. created a test1 script to get things working and for use as a template.  created logging.  covered all the use cases docuemented in the deckofcards api website.
+8. created 4 performance testing scenarios using the test1 script as a template.
+9. ran some tests against the deckofcards api website,  scripts look good.
+10. set up docker to run the deckofcards api locally on my macbook - based on the ask.
+11. set up the api to run in the docker container on my macbook.
+Docker version 29.1.3, build f52814d,  container running (you can access it at http://localhost:8088)
+12. ran all the tests pointer to the docker container.
+13. git cloned the https://github.com/crobertsbmw/deckofcards repo into a django project in a vscode workspace at /onebriefAPI-to-Test folder /deckofcards
+git clone https://github.com/crobertsbmw/deckofcards.git
+14. The following packages will be installed: django-cors-headers, django==3.2.14
+15. cd /Users/herscheldecouto/onebriefAPI-to-Test/deckofcards && /Users/herscheldecouto/onebriefAPI-to-Test/.venv/bin/python manage.py migrate
+The API will be available at http://127.0.0.1:8000
+16. change scripts to point to the api server locally
+17. change to http/1.1  as http/2.0 not working
+18. ran through the tests and they are working locally.  the deckofcards app had hard coded url's pointing the the actual online webserver.  i changed all the code to point to localhost:8000 and all the activity is occurring on my macbook.  next i will deploy the app ion a docker container and run from there.
 

@@ -5,11 +5,14 @@ import { Trend } from 'k6/metrics';
 import exec from 'k6/execution';
 
 // Enable/disable console logging
-const ENABLE_LOGGING = false;
+const ENABLE_LOGGING = true;
+
+// Base URL for the Deck of Cards API
+const BASE_URL = 'http://127.0.0.1:8000';
 
 export const options = {
     vus: 1,
-    duration: '10s',
+    duration: '3s',
 }
 
 // Separate metrics for each request type
@@ -78,7 +81,7 @@ function createOrShuffleDeck(url: string): string | undefined {
   
   check(res, {
     'status is 200': (r) => r.status === 200,
-    'protocol is HTTP/2': (r) => r.proto === 'HTTP/2.0',
+    'protocol is HTTP/1.1': (r) => r.proto === 'HTTP/1.1',
   });
   
   if (res.status !== 200) {
@@ -107,7 +110,7 @@ function drawCards(url: string): DrawResponse | undefined {
   
   check(res, {
     'status is 200': (r) => r.status === 200,
-    'protocol is HTTP/2': (r) => r.proto === 'HTTP/2.0',
+    'protocol is HTTP/1.1': (r) => r.proto === 'HTTP/1.1',
   });
   
   if (res.status !== 200) {
@@ -136,7 +139,7 @@ function managePile(url: string): PileResponse | undefined {
   
   check(res, {
     'status is 200': (r) => r.status === 200,
-    'protocol is HTTP/2': (r) => r.proto === 'HTTP/2.0',
+    'protocol is HTTP/1.1': (r) => r.proto === 'HTTP/1.1',
   });
   
   if (res.status !== 200) {
@@ -165,7 +168,7 @@ function makeRequest(url: string): string | undefined {
   
   check(res, {
     'status is 200': (r) => r.status === 200,
-    'protocol is HTTP/2': (r) => r.proto === 'HTTP/2.0',
+    'protocol is HTTP/1.1': (r) => r.proto === 'HTTP/1.1',
   });
   
   if (res.status !== 200) {
@@ -178,51 +181,51 @@ function makeRequest(url: string): string | undefined {
 
 export default function () {
     // 1. Create a brand new deck (not shuffled)
-    const single_deck_id = createOrShuffleDeck('https://deckofcardsapi.com/api/deck/new/');
+    const single_deck_id = createOrShuffleDeck(`${BASE_URL}/api/deck/new/`);
     
     // 2. Shuffle the deck with multiple decks
-    const deck_id = createOrShuffleDeck('https://deckofcardsapi.com/api/deck/new/shuffle/?deck_count=6');
+    const deck_id = createOrShuffleDeck(`${BASE_URL}/api/deck/new/shuffle/?deck_count=6`);
   
     if (deck_id) {
         // 3. Draw cards from deck
-        const drawnCards = drawCards(`https://deckofcardsapi.com/api/deck/${deck_id}/draw/?count=2`);
+        const drawnCards = drawCards(`${BASE_URL}/api/deck/${deck_id}/draw/?count=2`);
         
         // 4. Reshuffle remaining cards in deck
-        createOrShuffleDeck(`https://deckofcardsapi.com/api/deck/${deck_id}/shuffle/?remaining=true`);
+        createOrShuffleDeck(`${BASE_URL}/api/deck/${deck_id}/shuffle/?remaining=true`);
         
         // 5. Add cards to a pile
-        managePile(`https://deckofcardsapi.com/api/deck/${deck_id}/pile/discard/add/?cards=AS,2S`);
+        managePile(`${BASE_URL}/api/deck/${deck_id}/pile/discard/add/?cards=AS,2S`);
         
         // 6. Shuffle a pile
-        managePile(`https://deckofcardsapi.com/api/deck/${deck_id}/pile/discard/shuffle/`);
+        managePile(`${BASE_URL}/api/deck/${deck_id}/pile/discard/shuffle/`);
         
         // 7. List cards in pile
-        const pileList = managePile(`https://deckofcardsapi.com/api/deck/${deck_id}/pile/discard/list/`);
+        const pileList = managePile(`${BASE_URL}/api/deck/${deck_id}/pile/discard/list/`);
         
         // 8. Draw from pile by count
         // const pileDrawCount = managePile(`https://deckofcardsapi.com/api/deck/${deck_id}/pile/discard/draw/?count=1`);
         
         // 9. Draw from pile bottom
-        const pileDrawBottom = managePile(`https://deckofcardsapi.com/api/deck/${deck_id}/pile/discard/draw/bottom/`);
+        const pileDrawBottom = managePile(`${BASE_URL}/api/deck/${deck_id}/pile/discard/draw/bottom/`);
         
         // 10. Draw from pile random
-        const pileDrawRandom = managePile(`https://deckofcardsapi.com/api/deck/${deck_id}/pile/discard/draw/random/`);
+        const pileDrawRandom = managePile(`${BASE_URL}/api/deck/${deck_id}/pile/discard/draw/random/`);
         
         // 11. Return cards to deck
-        makeRequest(`https://deckofcardsapi.com/api/deck/${deck_id}/return/?cards=AS,2S`);
+        makeRequest(`${BASE_URL}/api/deck/${deck_id}/return/?cards=AS,2S`);
         
         // 12. Return cards from pile to deck
-        managePile(`https://deckofcardsapi.com/api/deck/${deck_id}/pile/discard/return/`);
+        managePile(`${BASE_URL}/api/deck/${deck_id}/pile/discard/return/`);
     }
   
     // 13. Create partial deck with specific cards
-    const partial_deck = createOrShuffleDeck('https://deckofcardsapi.com/api/deck/new/shuffle/?cards=AS,2S,KS,AD,2D,KD,AC,2C,KC,AH,2H,KH');
+    const partial_deck = createOrShuffleDeck(`${BASE_URL}/api/deck/new/shuffle/?cards=AS,2S,KS,AD,2D,KD,AC,2C,KC,AH,2H,KH`);
     
     // 14. Create deck with jokers enabled
-    const joker_deck = createOrShuffleDeck('https://deckofcardsapi.com/api/deck/new/?jokers_enabled=true');
+    const joker_deck = createOrShuffleDeck(`${BASE_URL}/api/deck/new/?jokers_enabled=true`);
     
     // 15. Draw from new deck (shortcut that creates and draws in one request)
-    const new_deck_with_draw = drawCards('https://deckofcardsapi.com/api/deck/new/draw/?count=2');
+    const new_deck_with_draw = drawCards(`${BASE_URL}/api/deck/new/draw/?count=2`);
   
     sleep(.1);
 }
