@@ -40,4 +40,4 @@ The API will be available at http://127.0.0.1:8000
 16. change scripts to point to the api server locally
 17. change to http/1.1  as http/2.0 not working
 18. ran through the tests and they are working locally.  the deckofcards app had hard coded url's pointing the the actual online webserver.  i changed all the code to point to localhost:8000 and all the activity is occurring on my macbook.  next i will deploy the app ion a docker container and run from there.
-decided not to use docker as this creates more complexity.  running the app in vscode terminal
+19. decided not to use docker as this creates more complexity.  running the app in vscode terminal
