@@ -3,6 +3,7 @@ import http from 'k6/http';
 import { check, sleep } from 'k6';
 import { Trend } from 'k6/metrics';
 import exec from 'k6/execution';
+import { TableHeadElement } from 'k6/html';
 
 // Enable/disable console logging
 const ENABLE_LOGGING = true;
@@ -11,8 +12,8 @@ const ENABLE_LOGGING = true;
 const BASE_URL = 'http://127.0.0.1:8000';
 
 export const options = {
-    vus: 1,
-    duration: '3s',
+    vus: 100,
+    duration: '60s',
 }
 
 // Separate metrics for each request type
@@ -180,52 +181,60 @@ function makeRequest(url: string): string | undefined {
 }
 
 export default function () {
+
+  /*
+  call shuffle
+  call draw , cards=5 
+  create a pile
+  VIEW THE PILE */
+
+  
     // 1. Create a brand new deck (not shuffled)
-    const single_deck_id = createOrShuffleDeck(`${BASE_URL}/api/deck/new/`);
+    let deck_id = createOrShuffleDeck(`${BASE_URL}/api/deck/new/`);
     
-    // 2. Shuffle the deck with multiple decks
-    const deck_id = createOrShuffleDeck(`${BASE_URL}/api/deck/new/shuffle/?deck_count=6`);
+    // 2. Shuffle the deck with multiple deck
+      // deck_id = createOrShuffleDeck(`${BASE_URL}/api/deck/new/shuffle/?deck_count=1`);
   
     if (deck_id) {
         // 3. Draw cards from deck
-        const drawnCards = drawCards(`${BASE_URL}/api/deck/${deck_id}/draw/?count=2`);
+        const drawnCards = drawCards(`${BASE_URL}/api/deck/${deck_id}/draw/?count=5`);
         
-        // 4. Reshuffle remaining cards in deck
-        createOrShuffleDeck(`${BASE_URL}/api/deck/${deck_id}/shuffle/?remaining=true`);
-        
+        // // 4. Reshuffle remaining cards in deck
+        // createOrShuffleDeck(`${BASE_URL}/api/deck/${deck_id}/shuffle/?remaining=true`);
+        // add code to parametrize the 5 cards to add to the pile
         // 5. Add cards to a pile
-        managePile(`${BASE_URL}/api/deck/${deck_id}/pile/discard/add/?cards=AS,2S`);
+        managePile(`${BASE_URL}/api/deck/${deck_id}/pile/discard/add/?cards=AS,2S,3S,4S,5S`);
         
         // 6. Shuffle a pile
-        managePile(`${BASE_URL}/api/deck/${deck_id}/pile/discard/shuffle/`);
+        // managePile(`${BASE_URL}/api/deck/${deck_id}/pile/discard/shuffle/`);
         
         // 7. List cards in pile
-        const pileList = managePile(`${BASE_URL}/api/deck/${deck_id}/pile/discard/list/`);
+        // const pileList = managePile(`${BASE_URL}/api/deck/${deck_id}/pile/discard/list/`);
         
         // 8. Draw from pile by count
         // const pileDrawCount = managePile(`https://deckofcardsapi.com/api/deck/${deck_id}/pile/discard/draw/?count=1`);
         
         // 9. Draw from pile bottom
-        const pileDrawBottom = managePile(`${BASE_URL}/api/deck/${deck_id}/pile/discard/draw/bottom/`);
+        // const pileDrawBottom = managePile(`${BASE_URL}/api/deck/${deck_id}/pile/discard/draw/bottom/`);
         
         // 10. Draw from pile random
-        const pileDrawRandom = managePile(`${BASE_URL}/api/deck/${deck_id}/pile/discard/draw/random/`);
+        // const pileDrawRandom = managePile(`${BASE_URL}/api/deck/${deck_id}/pile/discard/draw/random/`);
         
         // 11. Return cards to deck
-        makeRequest(`${BASE_URL}/api/deck/${deck_id}/return/?cards=AS,2S`);
+        // makeRequest(`${BASE_URL}/api/deck/${deck_id}/return/?cards=AS,2S`);
         
         // 12. Return cards from pile to deck
-        managePile(`${BASE_URL}/api/deck/${deck_id}/pile/discard/return/`);
+        // managePile(`${BASE_URL}/api/deck/${deck_id}/pile/discard/return/`);
     }
   
     // 13. Create partial deck with specific cards
-    const partial_deck = createOrShuffleDeck(`${BASE_URL}/api/deck/new/shuffle/?cards=AS,2S,KS,AD,2D,KD,AC,2C,KC,AH,2H,KH`);
+    // const partial_deck = createOrShuffleDeck(`${BASE_URL}/api/deck/new/shuffle/?cards=AS,2S,KS,AD,2D,KD,AC,2C,KC,AH,2H,KH`);
     
     // 14. Create deck with jokers enabled
-    const joker_deck = createOrShuffleDeck(`${BASE_URL}/api/deck/new/?jokers_enabled=true`);
+    // const joker_deck = createOrShuffleDeck(`${BASE_URL}/api/deck/new/?jokers_enabled=true`);
     
     // 15. Draw from new deck (shortcut that creates and draws in one request)
-    const new_deck_with_draw = drawCards(`${BASE_URL}/api/deck/new/draw/?count=2`);
+    // const new_deck_with_draw = drawCards(`${BASE_URL}/api/deck/new/draw/?count=2`);
   
     sleep(.1);
 }
